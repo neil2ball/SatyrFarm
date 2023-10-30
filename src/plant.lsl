@@ -1,11 +1,3 @@
-// plant.lsl
-// This script is common for trees, plant, fields, vines etc.  
-
-// CHANGE LOG
-// Merged in autoharvest plugin (so this script will delete the 'plugin-auto_harvest' script if present in the plant)
-// By-products - can use this instead of or as well as 'wood'   specifiy items that are produced during the growin process such as petals, branches, roots etc
-// Added Replant option to menu
-// NEW/CHANGED TEXT
 string TXT_REPLANT = "Replanting";
 string TXT_REPLANT_ON = "Replanting is On";
 string TXT_REPLANT_OFF = "Replanting is Off";
@@ -15,41 +7,37 @@ string TXT_ADD_MANURE = "Add manure";
 string TXT_GET_WOOD = "Get wood";
 string TXT_WATER = "Water";
 string TXT_WOOD = "Wood";
-//
 
-float  VERSION = 5.0;     // 4 March 2022
-integer RSTATE  = 1;      // RSTATE: 1=release, 0=beta, -1=RC
+
+float  VERSION = 5.0;
+integer RSTATE  = 1;
 
 integer DEBUGMODE = FALSE;
-debug(string text)
-{
-    if (DEBUGMODE == TRUE) llOwnerSay("DEBUG_" + llToUpper(llGetScriptName()) + " " + text);
-}
 
-//variables that get set in config notecard
-float LIFETIME = 172800.0;                  // LIFEDAYS=3                                 days in growing period. Plant spends LIFEDAYS/3 time in 'New' so total days to be ripe is LIFEDAYS*1.3)
-float WATER_TIMES = 2.0;                    // WATER_TIMES=2                              how many times to water the plant during the growing phase
-integer AUTOREPLANT=0;                      // AUTOREPLANT                                if 1, will auto plant same again when harvested
-list BY_PRODUCTS = [];                      // BY_PRODUCTS=Leaves,Twigs,Branches,Logs      Products produced during growing cycle. Can use as well as or instead of 'WOOD' settings
-list BY_PRODUCT_TIMES = [];                 // BY_PRODUCT_TIMES=4,3,2,1                    how many times to give by-product during the growing phase
-integer HAS_WOOD = 0;                       // HAS_WOOD=0                                 whether this plant gives a wood product. If yes, the product must be in the contents
-float WOOD_TIMES = 2.0;                     // WOOD_TIMES=2                               how many times to give wood during the growing phase
-string WOOD_OBJECT = "SF Wood";             // WOOD_OBJECT=SF Wood                        full name of 'wood' product
-list PLANTS = [];                           // PLANTLIST=Orange Tree,Apple Tree etc       short names names of supported plants, separated with comma
-list PRODUCTS = [];                         // PRODUCTLIST=SF Oranges,SF Apples etc       full names of products each plant rezzes
-vector  rezzPosition = <0.0, 1.5, 2.0>;     // REZ_POSITION=<0.0, 1.5, 2.0>               where to rez harvested item
-integer doReset = 1;                        // RESET_ON_REZ=1                             if 1 will do hard reset on rez
-integer floatText = TRUE;                   // FLOAT_TEXT=1                               set to 0 to not show the status float text
-integer plantPrims = FALSE;                 // PLANT_PRIMS=0                              set to 1 to use prims rather than texture for the stages of plant growth
-integer growPrims = FALSE;                  // GROW_PRIMS=0                               if PLANT_PRIMS = 1, set this to 1 to increase the size of the prim as the plant grows
-integer scaleFactor = 50;                   // SCALE=50                                   for primplants
-string  SF_WATER_TOWER = "SF Water Tower";  // WELL=SF Water Tower                        full name of place to get water in auto water mode
-string  SF_WATER="SF Water";                // WATER_OBJECT=SF Water                      full name of water product to accept for manual watering
-string  SF_MANURE="SF Manure";              // MANURE_OBJECT=SF Manure                    full name of product to accept as manure
-string  SF_COMPOSTABLE="SF Compostable";    // COMPOSTABLE_OBJECT=SF Compostable          full name of product to give as compostable product
-string  languageCode = "en-GB";             // LANG=en-GB
-//
-// Language support
+
+float LIFETIME = 172800.0;
+float WATER_TIMES = 2.0;
+integer AUTOREPLANT=0;
+list BY_PRODUCTS = [];
+list BY_PRODUCT_TIMES = [];
+integer HAS_WOOD = 0;
+float WOOD_TIMES = 2.0;
+string WOOD_OBJECT = "SF Wood";
+list PLANTS = [];
+list PRODUCTS = [];
+vector  rezzPosition = <0.0, 1.5, 2.0>;
+integer doReset = 1;
+integer floatText = TRUE;
+integer plantPrims = FALSE;
+integer growPrims = FALSE;
+integer scaleFactor = 50;
+string  SF_WATER_TOWER = "SF Water Tower";
+string  SF_WATER="SF Water";
+string  SF_MANURE="SF Manure";
+string  SF_COMPOSTABLE="SF Compostable";
+string  languageCode = "en-GB";
+
+
 string  TXT_PLANTED = " Planted!";
 string  TXT_EMPTYING = "Emptying..."  ;
 string  TXT_HARVETS_READY = "Congratulations! Your harvest is ready!";
@@ -66,7 +54,6 @@ string  TXT_HARVEST="Harvest";
 string  TXT_CLEANUP="Cleanup";
 string  TXT_PLANT="Plant";
 string  TXT_WATER_PLANT="Water plant";
-string  TXT_ADD="Add";
 string  TXT_BUTTON_CLOSE="CLOSE";
 string  TXT_MENU_OPTIONS="Options";
 string  TXT_STATUS="Status";
@@ -79,20 +66,20 @@ string  TXT_ERROR_NO_CONFIG="Error: No config Notecard found. I can't work witho
 string  TXT_ERROR_AUTO_WATER="Error! Water tower not found within 96m. Auto-watering NOT working!";
 string  TXT_ERROR_NOT_FOUND="Error! Not found! You must bring it near me!";
 string  TXT_LANGUAGE="@";
-//
+
 string  TXT_EMPTY="Empty";
 string  TXT_NEW="New";
 string  TXT_GROWING="Growing";
 string  TXT_RIPE="Ripe";
 string  TXT_DEAD="Dead";
-//
-// Commands from NPC are always these words
+
+
 string NPC_WATER_PLANT  = "Water";
 string NPC_HARVEST      = "Harvest";
 string NPC_PLANT        = "Plant";
-//
-string SUFFIX = "P1";http://opensimulator.org/wiki/Codebase_overview
-//
+
+string SUFFIX = "P1";
+
 vector WHITE  = <1.000, 1.000, 1.000>;
 vector BROWN  = <0.333, 0.237, 0.160>;
 vector BLACK  = <0.048, 0.034, 0.023>;
@@ -100,22 +87,22 @@ vector LEMON  = <1.000, 0.900, 0.600>;
 vector YELLOW = <1.000, 0.863, 0.000>;
 vector GREEN  = <0.180, 0.800, 0.251>;
 vector RED    = <1.000, 0.000, 0.000>;
-//
+
 string FOLIAGE_TEXTURE = "Foliage";
 string PASSWORD="*";
 integer FARM_CHANNEL = -911201;
 integer INTERVAL = 300;
 string PRODUCT_NAME;
-//for AddOns
+
 list customOptions = [];
 list customText = [];
 list statusOptions = [];
-// for primbased plants
+
 list  link_scales = [];
 list  link_num = [];
 float max_scale;
 float min_scale;
-//status and temporary variables
+
 integer statusLeft;
 integer statusDur;
 string status = "";
@@ -136,27 +123,406 @@ string lookingFor;
 integer listener=-1;
 integer listenTs;
 
-
-integer chan(key u)
+resizeObject(float scale)
 {
-    return -1 - (integer)("0x" + llGetSubString( (string) u, -6, -1) )-393;
+    integer link_qty = llGetListLength(link_scales);
+    integer link_idx;
+    for (link_idx = 0; link_idx < link_qty; ++link_idx)
+    {
+        llSetLinkPrimitiveParamsFast(llList2Integer(link_num, link_idx),    [PRIM_SIZE, scale * llList2Vector(link_scales, link_idx) ]);
+    }
+}
+
+psys()
+{
+     llParticleSystem(
+                [
+                    PSYS_SRC_PATTERN, PSYS_SRC_PATTERN_EXPLODE,
+                    PSYS_SRC_BURST_RADIUS,1,
+                    PSYS_SRC_ANGLE_BEGIN,0,
+                    PSYS_SRC_ANGLE_END,0,
+
+                    PSYS_PART_START_COLOR,<.4000000,.900000,.400000>,
+                    PSYS_PART_END_COLOR,<8.000000,1.00000,8.800000>,
+
+                    PSYS_PART_START_ALPHA,.6,
+                    PSYS_PART_END_ALPHA,0,
+                    PSYS_PART_START_GLOW,0,
+                    PSYS_PART_END_GLOW,0,
+                    PSYS_PART_BLEND_FUNC_SOURCE,PSYS_PART_BF_SOURCE_ALPHA,
+                    PSYS_PART_BLEND_FUNC_DEST,PSYS_PART_BF_ONE_MINUS_SOURCE_ALPHA,
+
+                    PSYS_PART_START_SCALE,<0.100000,0.100000,0.000000>,
+                    PSYS_PART_END_SCALE,<.5000000,.5000000,0.000000>,
+                    PSYS_SRC_TEXTURE,"",
+                    PSYS_SRC_MAX_AGE,2,
+                    PSYS_PART_MAX_AGE,5,
+                    PSYS_SRC_BURST_RATE, 100,
+                    PSYS_SRC_BURST_PART_COUNT, 10,
+                    PSYS_SRC_ACCEL,<0.000000,0.000000,0.000000>,
+                    PSYS_SRC_OMEGA,<0.000000,0.000000,0.000000>,
+                    PSYS_SRC_BURST_SPEED_MIN, 0.1,
+                    PSYS_SRC_BURST_SPEED_MAX, 1.,
+                    PSYS_PART_FLAGS,
+                        0 |
+                        PSYS_PART_EMISSIVE_MASK |
+
+                        PSYS_PART_INTERP_COLOR_MASK |
+                        PSYS_PART_INTERP_SCALE_MASK
+                ]);
+}
+
+integer getLinkNum(string name)
+{
+    integer i;
+    for (i=1; i <=llGetNumberOfPrims(); i++)
+        if (llGetLinkName(i) == name) return i;
+    return -1;
+}
+
+
+list ListXandY(list lx, list ly)
+{
+
+    list lz = []; integer x;
+    for (x = 0; x < llGetListLength(ly); x++)
+    {
+        if (~llListFindList(lx,llList2List(ly,x,x)))
+        {
+            lz = lz + llList2List(ly,x,x);
+        }
+        else
+        {
+
+        }
+    }
+    return lz;
+}
+
+string trimPrefix(string name)
+{
+
+    debug("input: "+name +"   output: " + llGetSubString(name, 2, -1));
+    return llGetSubString(name, 2, -1);
 }
 
 startListen()
 {
-    if (listener<0)The 96m is the maximum radius around the plant
+    if (listener<0)
     {
         listener = llListen(chan(llGetKey()), "", "", "");
     }
     listenTs = llGetUnixTime();
 }
 
-checkListen(integer force)
+setFoliage(integer visible, vector colour)
 {
-    if ((listener > 0 && llGetUnixTime() - listenTs > 300) || force)
+    string texture;
+    if (visible == FALSE)
     {
-        llListenRemove(listener);
-        listener = -1;
+        if (plantPrims == FALSE)
+        {
+            llSetLinkTexture(getLinkNum(FOLIAGE_TEXTURE), TEXTURE_TRANSPARENT, ALL_SIDES);
+        }
+        else
+        {
+            list primNames = [];
+            integer i;
+            for (i=1; i <=llGetNumberOfPrims(); i++)
+            {
+
+                primNames = llParseString2List(llList2String(llGetLinkPrimitiveParams(i, [PRIM_NAME]), 0), [";"], []);
+                if (llGetListLength(ListXandY(primNames, ["New", "Growing", "Ripe"])) != 0)
+                {
+                    llSetLinkAlpha(i, 0.0, ALL_SIDES);
+                }
+            }
+        }
+    }
+    else
+    {
+        if (plantPrims == FALSE)
+        {
+            texture = season + plant + "-" + status;
+            if (llGetInventoryType(texture) == INVENTORY_TEXTURE)
+            {
+                llSetLinkTexture(getLinkNum(FOLIAGE_TEXTURE), texture, ALL_SIDES);
+            }
+            llSetLinkColor(getLinkNum(FOLIAGE_TEXTURE), colour, ALL_SIDES);
+        }
+        else
+        {
+            list primNames = [];
+            integer i;
+            for (i=1; i <=llGetNumberOfPrims(); i++)
+            {
+
+                primNames = llParseString2List(llList2String(llGetLinkPrimitiveParams(i, [PRIM_NAME]), 0), [";"], []);
+
+                if (llGetListLength(ListXandY(primNames, ["New", "Growing", "Ripe"])) != 0)
+                {
+                    if (llListFindList(primNames, [status]) != -1)
+                    {
+                        debug("plant_prim="+(string)i);
+                        llSetLinkAlpha(i, 1.0, ALL_SIDES);
+                        if ((status == "Growing") && (growPrims == TRUE))
+                        {
+                            float percentGrowth = (1- ((float)(statusLeft)/(float)statusDur)) * 100;
+                            debug("Progress:"+ llRound(percentGrowth) +"\nstatusLeft:" +(string)statusLeft + "   statusDur:" +(string)statusDur);
+                            resizeObject(percentGrowth/scaleFactor);
+                        }
+                    }
+                    else
+                    {
+                        llSetLinkAlpha(i, 0.0, ALL_SIDES);
+                    }
+                }
+            }
+        }
+    }
+}
+
+string setByProdLevels()
+{
+    integer index;
+    float result;
+    string progress = "";
+    integer count = llGetListLength(BY_PRODUCTS);
+    if (count >0)
+    {
+        integer amount;
+        string bpText = TXT_RIPE+":\n";
+        for (index = 0; index < count; index++)
+        {
+            result = llFloor(llList2Float(byProdLevels, index));
+            if (result >= 100.0) bpText += trimPrefix(llList2String(BY_PRODUCTS, index))+"\n"; else progress += trimPrefix(llList2String(BY_PRODUCTS, index)) +": " +(string)(llFloor(llList2Float(byProdLevels, index)))+"%\n";
+        }
+        if (bpText != TXT_RIPE+":\n") llMessageLinked(LINK_SET, 1, "BP_READY|"+bpText, ""); else llMessageLinked(LINK_SET, 1, "BP_READY|"+"", "");
+    }
+    return progress;
+}
+
+save2Desc()
+{
+    string codedDesc = "T;"+PRODUCT_NAME+";"+status+";"+(string)(statusLeft)+";"+(string)llRound(water)+";"+(string)llRound(wood)+";"+plant+";"+(string)chan(llGetKey())+";"+(string)autoWater + ";"+languageCode +";"+(string)autoHarvest;
+    if (llGetListLength(byProdLevels) != 0) codedDesc  += ";"+llDumpList2String(byProdLevels, ";");
+    llSetObjectDesc(codedDesc);
+}
+
+refresh_real()
+{
+    string progress = "";
+    vector color = LEMON;
+    string customStr = "";
+    float result;
+    integer count;
+    integer index = llGetListLength(customText);
+    while (index--)
+    {
+        customStr = llList2String(customText, index) + "\n";
+    }
+
+    if (status == "New" || status == "Growing" || status == "Ripe")
+    {
+        progress = plant+"\n";
+        if (llGetAndResetTime() >= (INTERVAL - 20))
+        {
+
+            water -= (float)(INTERVAL / LIFETIME * WATER_TIMES) * 100.0;
+
+
+            wood += (float)(INTERVAL / LIFETIME * WOOD_TIMES) * 100.0;
+            if (wood > 100.0) wood = 100.0;
+
+
+            float times;
+            count = llGetListLength(BY_PRODUCTS);
+            for (index = 0; index < count; index++)
+            {
+                result = llList2Float(byProdLevels, index);
+                times = llList2Float(BY_PRODUCT_TIMES, index);
+                result += (float)(INTERVAL / LIFETIME * times) * 100.0;
+                if (result > 100.0) result = 100.0;
+                byProdLevels = llListReplaceList(byProdLevels, [result], index, index);
+            }
+
+
+            if (water <= -50.)
+            {
+                status = "Dead";
+            }
+            else if (water > 3.)
+            {
+                statusLeft -= INTERVAL;
+                if ( statusLeft <=0)
+                {
+                    if (status == "New")
+                    {
+                        status = "Growing";
+                        statusLeft = statusDur =  (integer) (LIFETIME);
+                    }
+                    else if (status == "Growing")
+                    {
+                        status = "Ripe";
+                        statusLeft = statusDur =  (integer) (LIFETIME);
+                    }
+                    else if (status == "Ripe")
+                    {
+                        if (AUTOREPLANT)
+                        {
+                            status = "New";
+                            statusLeft   = statusDur =  (integer) LIFETIME/3;
+                        }
+                        else
+                        {
+                            status = "Dead";
+                        }
+                    }
+                }
+            }
+        }
+
+        setFoliage(TRUE, WHITE);
+        if (water <= 5.0)
+        {
+            if (autoWater)
+            {
+                sense = "AutoWater";
+                llSensor(SF_WATER_TOWER, "", SCRIPTED, 96, PI);
+                llSay(0, TXT_SEEK_WT);
+            }
+            progress += TXT_NEEDS_WATER+"!\n";
+            setFoliage(TRUE, BROWN);
+            color = RED;
+        }
+        else if (status == "Growing" && statusLeft <= 86400)
+        {
+            color = YELLOW;
+            llMessageLinked(LINK_SET, 1, "STAGE|GROWING", NULL_KEY);
+        }
+        else if (status == "Ripe")
+        {
+            color = GREEN;
+            llMessageLinked(LINK_SET, 1, "STAGE|RIPE", NULL_KEY);
+        }
+        else if (status == "New")
+        {
+            llMessageLinked(LINK_SET, 1, "STAGE|NEW", NULL_KEY);
+        }
+
+        float p = 1- ((float)(statusLeft)/(float)statusDur);
+
+        progress += TXT_STATUS+": ";
+             if (status == "Empty") progress += TXT_EMPTY;
+        else if (status == "New") progress += TXT_NEW;
+        else if (status == "Growing") progress += TXT_GROWING;
+        else if (status == "Ripe") progress += TXT_RIPE;
+        else if (status == "Dead") progress += TXT_DEAD;
+        progress += " ("+(string)((integer)(p*100.))+"%)\n---\n";
+        progress += TXT_WATER+" "+(string)((integer)osMax(0.0, water))+ "%\n";
+        if (HAS_WOOD)
+        {
+            progress += TXT_WOOD+" "+(string)(llFloor(wood))+"%\n";
+        }
+        progress += setByProdLevels();
+    }
+
+    if (status == "Dead")
+    {
+        setFoliage(TRUE, BLACK);
+        progress = TXT_DEAD +" "+ TXT_CLICK_TO_CLEANUP;
+        color = RED;
+    }
+    else if (status == "Empty")
+    {
+        setFoliage(FALSE, ZERO_VECTOR);
+        llMessageLinked(LINK_SET, 1, "STAGE|EMPTY", NULL_KEY);
+        progress = TXT_EMPTY + "\n" + TXT_CLICK_TO_PLANT;
+    }
+
+    debug(customStr + progress);
+    psys();
+
+    if (RSTATE == 0) progress+= "\n-B-"; else if (RSTATE == -1) progress+= "\n-RC-";
+    if (floatText == TRUE) llSetText(customStr + progress, color, 1.0); else llSetText("",ZERO_VECTOR,0.0);
+    llMessageLinked(LINK_SET, 92, "STATUS|"+status+"|"+(string)statusLeft+"|WATER|"+(string)water+"|PRODUCT|"+PRODUCT_NAME+"|PLANT|"+plant+"|LIFETIME|"+(string)LIFETIME, NULL_KEY);
+    save2Desc();
+}
+
+refresh()
+{
+    refresh_real();
+    if (status == "Ripe" && autoHarvest) {
+        doHarvest();
+    }
+}
+
+loadLanguage(string langCode)
+{
+
+    string languageNC = langCode + "-lang" + SUFFIX;
+    if (llGetInventoryType(languageNC) == INVENTORY_NOTECARD)
+    {
+        list lines = llParseStringKeepNulls(osGetNotecard(languageNC), ["\n"], []);
+        integer i;
+        for (i=0; i < llGetListLength(lines); i++)
+        {
+            string line = llList2String(lines, i);
+            if (llGetSubString(line, 0, 0) != "#")
+            {
+                list tok = llParseString2List(line, ["="], []);
+                if (llList2String(tok,1) != "")
+                {
+                    string cmd=llStringTrim(llList2String(tok, 0), STRING_TRIM);
+                    string val=llStringTrim(llList2String(tok, 1), STRING_TRIM);
+
+                    val = llGetSubString(val, 1, -2);
+
+                         if (cmd == "TXT_PLANTED")  TXT_PLANTED = val;
+                    else if (cmd == "TXT_EMPTYING") TXT_EMPTYING = val;
+                    else if (cmd == "TXT_HARVETS_READY") TXT_HARVETS_READY = val;
+                    else if (cmd == "TXT_FOUND_WATER") TXT_FOUND_WATER = val;
+                    else if (cmd == "TXT_AUTOWATER") TXT_AUTOWATER = val;
+                    else if (cmd == "TXT_AUTOWATERING_OFF") TXT_AUTOWATERING_OFF = val;
+                    else if (cmd == "TXT_AUTOWATERING_ON") TXT_AUTOWATERING_ON = val;
+                    else if (cmd == "TXT_AUTO_HARVEST")  TXT_AUTO_HARVEST = val;
+                    else if (cmd == "TXT_AUTOHARVESTING_OFF") TXT_AUTOHARVESTING_OFF = val;
+                    else if (cmd == "TXT_AUTOHARVESTING_ON") TXT_AUTOHARVESTING_ON = val;
+                    else if (cmd == "TXT_NEEDS_WATER") TXT_NEEDS_WATER = val;
+                    else if (cmd == "TXT_SEEK_WT") TXT_SEEK_WT = val;
+                    else if (cmd == "TXT_HARVEST") TXT_HARVEST = val;
+                    else if (cmd == "TXT_CLEANUP") TXT_CLEANUP = val;
+                    else if (cmd == "TXT_PLANT") TXT_PLANT = val;
+                    else if (cmd == "TXT_WATER_PLANT") TXT_WATER_PLANT = val;
+                    else if (cmd == "TXT_GET") TXT_GET = val;
+                    else if (cmd == "TXT_GET_WOOD") TXT_GET_WOOD = val;
+                    else if (cmd == "TXT_BUTTON_CLOSE") TXT_BUTTON_CLOSE = val;
+                    else if (cmd == "TXT_MENU_OPTIONS") TXT_MENU_OPTIONS = val;
+                    else if (cmd == "TXT_EMPTY") TXT_EMPTY = val;
+                    else if (cmd == "TXT_NEW") TXT_NEW = val;
+                    else if (cmd == "TXT_GROWING") TXT_GROWING = val;
+                    else if (cmd == "TXT_RIPE") TXT_RIPE = val;
+                    else if (cmd == "TXT_DEAD") TXT_DEAD = val;
+                    else if (cmd == "TXT_WATER") TXT_WATER = val;
+                    else if (cmd == "TXT_WOOD")  TXT_WOOD = val;
+                    else if (cmd == "TXT_STATUS") TXT_STATUS = val;
+                    else if (cmd == "TXT_CLICK_TO_PLANT") TXT_CLICK_TO_PLANT = val;
+                    else if (cmd == "TXT_CLICK_TO_CLEANUP") TXT_CLICK_TO_CLEANUP = val;
+                    else if (cmd == "TXT_REPLANT_OFF") TXT_REPLANT_OFF = val;
+                    else if (cmd == "TXT_REPLANT_ON") TXT_REPLANT_ON = val;
+                    else if (cmd == "TXT_REPLANT") TXT_REPLANT = val;
+                    else if (cmd == "TXT_ADD_MANURE") TXT_ADD_MANURE = val;
+                    else if (cmd == "TXT_LOW_ENERGY") TXT_LOW_ENERGY = val;
+                    else if (cmd == "TXT_ERROR_UPDATE") TXT_ERROR_UPDATE = val;
+                    else if (cmd == "TXT_ERROR_LOCKED") TXT_ERROR_LOCKED = val;
+                    else if (cmd == "TXT_ERROR_NO_CONFIG") TXT_ERROR_NO_CONFIG = val;
+                    else if (cmd == "TXT_ERROR_AUTO_WATER") TXT_ERROR_AUTO_WATER = val;
+                    else if (cmd == "TXT_ERROR_NOT_FOUND") TXT_ERROR_NOT_FOUND = val;
+                    else if (cmd == "TXT_ERROR_GROUP") TXT_ERROR_GROUP = val;
+                    else if (cmd == "TXT_LANGUAGE") TXT_LANGUAGE = val;
+                }
+            }
+        }
     }
 }
 
@@ -168,10 +534,10 @@ loadConfig(integer checkForReset)
     string val;
     string line;
     list tok;
-    //sfp notecard
+
     PASSWORD = osGetNotecardLine("sfp", 0);
     if (osGetNumberOfNotecardLines("sfp") >= 2) doReset = (integer)osGetNotecardLine("sfp", 1);
-    //config notecard
+
     if (llGetInventoryType("config") == INVENTORY_NOTECARD)
     {
         list lines = llParseString2List(osGetNotecard("config"), ["\n"], []);
@@ -228,7 +594,7 @@ loadConfig(integer checkForReset)
         llSay(0, TXT_ERROR_NO_CONFIG);
     }
 
-    // Zero by-product levels if used
+
     count = llGetListLength(BY_PRODUCTS);
     if (count > 0)
     {
@@ -239,7 +605,7 @@ loadConfig(integer checkForReset)
         }
     }
 
-    //state by description
+
     list desc = llParseStringKeepNulls(llGetObjectDesc(), [";"], []);
     if (llList2String(desc, 0) == "T")
     {
@@ -273,7 +639,7 @@ loadConfig(integer checkForReset)
             {
                 statusDur = (integer)LIFETIME;
             }
-            // Check for any by-product levels
+
             if (llList2String(desc, 11) != "")
             {
                 byProdLevels = [];
@@ -288,281 +654,6 @@ loadConfig(integer checkForReset)
     }
 }
 
-save2Desc()
-{
-    string codedDesc = "T;"+PRODUCT_NAME+";"+status+";"+(string)(statusLeft)+";"+(string)llRound(water)+";"+(string)llRound(wood)+";"+plant+";"+(string)chan(llGetKey())+";"+(string)autoWater + ";"+languageCode +";"+(string)autoHarvest;
-    if (llGetListLength(byProdLevels) != 0) codedDesc  += ";"+llDumpList2String(byProdLevels, ";");
-    llSetObjectDesc(codedDesc);
-}
-
-loadLanguage(string langCode)
-{
-    // optional language notecard
-    string languageNC = langCode + "-lang" + SUFFIX;
-    if (llGetInventoryType(languageNC) == INVENTORY_NOTECARD)
-    {
-        list lines = llParseStringKeepNulls(osGetNotecard(languageNC), ["\n"], []);
-        integer i;
-        for (i=0; i < llGetListLength(lines); i++)
-        {
-            string line = llList2String(lines, i);
-            if (llGetSubString(line, 0, 0) != "#")
-            {
-                list tok = llParseString2List(line, ["="], []);
-                if (llList2String(tok,1) != "")
-                {
-                    string cmd=llStringTrim(llList2String(tok, 0), STRING_TRIM);
-                    string val=llStringTrim(llList2String(tok, 1), STRING_TRIM);
-                    // Remove start and end " marks
-                    val = llGetSubString(val, 1, -2);
-                    // Now check for language translations
-                         if (cmd == "TXT_PLANTED")  TXT_PLANTED = val;
-                    else if (cmd == "TXT_EMPTYING") TXT_EMPTYING = val;
-                    else if (cmd == "TXT_HARVETS_READY") TXT_HARVETS_READY = val;
-                    else if (cmd == "TXT_FOUND_WATER") TXT_FOUND_WATER = val;
-                    else if (cmd == "TXT_AUTOWATER") TXT_AUTOWATER = val;
-                    else if (cmd == "TXT_AUTOWATERING_OFF") TXT_AUTOWATERING_OFF = val;
-                    else if (cmd == "TXT_AUTOWATERING_ON") TXT_AUTOWATERING_ON = val;
-                    else if (cmd == "TXT_AUTO_HARVEST")  TXT_AUTO_HARVEST = val;
-                    else if (cmd == "TXT_AUTOHARVESTING_OFF") TXT_AUTOHARVESTING_OFF = val;
-                    else if (cmd == "TXT_AUTOHARVESTING_ON") TXT_AUTOHARVESTING_ON = val;
-                    else if (cmd == "TXT_NEEDS_WATER") TXT_NEEDS_WATER = val;
-                    else if (cmd == "TXT_SEEK_WT") TXT_SEEK_WT = val;
-                    else if (cmd == "TXT_HARVEST") TXT_HARVEST = val;
-                    else if (cmd == "TXT_CLEANUP") TXT_CLEANUP = val;
-                    else if (cmd == "TXT_PLANT") TXT_PLANT = val;
-                    else if (cmd == "TXT_WATER_PLANT") TXT_WATER_PLANT = val;
-                    else if (cmd == "TXT_GET") TXT_GET = val;
-                    else if (cmd == "TXT_GET_WOOD") TXT_GET_WOOD = val;
-                    else if (cmd == "TXT_BUTTON_CLOSE") TXT_BUTTON_CLOSE = val;
-                    else if (cmd == "TXT_MENU_OPTIONS") TXT_MENU_OPTIONS = val;
-                    else if (cmd == "TXT_EMPTY") TXT_EMPTY = val;
-                    else if (cmd == "TXT_NEW") TXT_NEW = val;
-                    else if (cmd == "TXT_GROWING") TXT_GROWING = val;
-                    else if (cmd == "TXT_RIPE") TXT_RIPE = val;
-                    else if (cmd == "TXT_DEAD") TXT_DEAD = val;
-                    else if (cmd == "TXT_WATER") TXT_WATER = val;
-                    else if (cmd == "TXT_WOOD")  TXT_WOOD = val;
-                    else if (cmd == "TXT_STATUS") TXT_STATUS = val;
-                    else if (cmd == "TXT_CLICK_TO_PLANT") TXT_CLICK_TO_PLANT = val;
-                    else if (cmd == "TXT_CLICK_TO_CLEANUP") TXT_CLICK_TO_CLEANUP = val;
-                    else if (cmd == "TXT_REPLANT_OFF") TXT_REPLANT_OFF = val;
-                    else if (cmd == "TXT_REPLANT_ON") TXT_REPLANT_ON = val;
-                    else if (cmd == "TXT_REPLANT") TXT_REPLANT = val;
-                    else if (cmd == "TXT_ADD_MANURE") TXT_ADD_MANURE = val;
-                    else if (cmd == "TXT_LOW_ENERGY") TXT_LOW_ENERGY = val;
-                    else if (cmd == "TXT_ERROR_UPDATE") TXT_ERROR_UPDATE = val;
-                    else if (cmd == "TXT_ERROR_LOCKED") TXT_ERROR_LOCKED = val;
-                    else if (cmd == "TXT_ERROR_NO_CONFIG") TXT_ERROR_NO_CONFIG = val;
-                    else if (cmd == "TXT_ERROR_AUTO_WATER") TXT_ERROR_AUTO_WATER = val;
-                    else if (cmd == "TXT_ERROR_NOT_FOUND") TXT_ERROR_NOT_FOUND = val;
-                    else if (cmd == "TXT_ERROR_GROUP") TXT_ERROR_GROUP = val;
-                    else if (cmd == "TXT_LANGUAGE") TXT_LANGUAGE = val;
-                }
-            }
-        }
-    }
-}
-
-psys()
-{
-     llParticleSystem(
-                [
-                    PSYS_SRC_PATTERN, PSYS_SRC_PATTERN_EXPLODE,
-                    PSYS_SRC_BURST_RADIUS,1,
-                    PSYS_SRC_ANGLE_BEGIN,0,
-                    PSYS_SRC_ANGLE_END,0,
-                    //PSYS_SRC_TARGET_KEY, (key) k,
-                    PSYS_PART_START_COLOR,<.4000000,.900000,.400000>,
-                    PSYS_PART_END_COLOR,<8.000000,1.00000,8.800000>,
-
-                    PSYS_PART_START_ALPHA,.6,
-                    PSYS_PART_END_ALPHA,0,
-                    PSYS_PART_START_GLOW,0,
-                    PSYS_PART_END_GLOW,0,
-                    PSYS_PART_BLEND_FUNC_SOURCE,PSYS_PART_BF_SOURCE_ALPHA,
-                    PSYS_PART_BLEND_FUNC_DEST,PSYS_PART_BF_ONE_MINUS_SOURCE_ALPHA,
-
-                    PSYS_PART_START_SCALE,<0.100000,0.100000,0.000000>,
-                    PSYS_PART_END_SCALE,<.5000000,.5000000,0.000000>,
-                    PSYS_SRC_TEXTURE,"",
-                    PSYS_SRC_MAX_AGE,2,
-                    PSYS_PART_MAX_AGE,5,
-                    PSYS_SRC_BURST_RATE, 100,
-                    PSYS_SRC_BURST_PART_COUNT, 10,
-                    PSYS_SRC_ACCEL,<0.000000,0.000000,0.000000>,
-                    PSYS_SRC_OMEGA,<0.000000,0.000000,0.000000>,
-                    PSYS_SRC_BURST_SPEED_MIN, 0.1,
-                    PSYS_SRC_BURST_SPEED_MAX, 1.,
-                    PSYS_PART_FLAGS,
-                        0 |
-                        PSYS_PART_EMISSIVE_MASK |
-                       // PSYS_PART_TARGET_POS_MASK|
-                        PSYS_PART_INTERP_COLOR_MASK |
-                        PSYS_PART_INTERP_SCALE_MASK
-                ]);
-}
-
-string setByProdLevels()
-{
-    integer index;
-    float result;
-    string progress = "";
-    integer count = llGetListLength(BY_PRODUCTS);
-    if (count >0)
-    {
-        integer amount;
-        string bpText = TXT_RIPE+":\n";
-        for (index = 0; index < count; index++)
-        {
-            result = llFloor(llList2Float(byProdLevels, index));
-            if (result >= 100.0) bpText += trimPrefix(llList2String(BY_PRODUCTS, index))+"\n"; else progress += trimPrefix(llList2String(BY_PRODUCTS, index)) +": " +(string)(llFloor(llList2Float(byProdLevels, index)))+"%\n";
-        }
-        if (bpText != TXT_RIPE+":\n") llMessageLinked(LINK_SET, 1, "BP_READY|"+bpText, ""); else llMessageLinked(LINK_SET, 1, "BP_READY|"+"", "");
-    }
-    return progress;
-}
-
-refresh()
-{
-    string progress = "";
-    vector color = LEMON;
-    string customStr = "";
-    float result;
-    integer count;
-    integer index = llGetListLength(customText);
-    while (index--)
-    {
-        customStr = llList2String(customText, index) + "\n";
-    }
-
-    if (status == "New" || status == "Growing" || status == "Ripe")
-    {
-        progress = plant+"\n";
-        if (llGetAndResetTime() >= (INTERVAL - 20))
-        {
-            // Update water level
-            water -= (float)(INTERVAL / LIFETIME * WATER_TIMES) * 100.0;
-
-            // Update Wood level
-            wood += (float)(INTERVAL / LIFETIME * WOOD_TIMES) * 100.0;
-            if (wood > 100.0) wood = 100.0;
-
-            // Update by-product levels
-            float times;
-            count = llGetListLength(BY_PRODUCTS);
-            for (index = 0; index < count; index++)
-            {
-                result = llList2Float(byProdLevels, index);
-                times = llList2Float(BY_PRODUCT_TIMES, index);
-                result += (float)(INTERVAL / LIFETIME * times) * 100.0;
-                if (result > 100.0) result = 100.0;
-                byProdLevels = llListReplaceList(byProdLevels, [result], index, index);
-            }
-
-            // Check plant health
-            if (water <= -50.)
-            {
-                status = "Dead";
-            }
-            else if (water > 3.)
-            {
-                statusLeft -= INTERVAL;
-                if ( statusLeft <=0)
-                {
-                    if (status == "New")
-                    {
-                        status = "Growing";
-                        statusLeft = statusDur =  (integer) (LIFETIME);
-                    }
-                    else if (status == "Growing")
-                    {
-                        status = "Ripe";
-                        statusLeft = statusDur =  (integer) (LIFETIME);
-                    }
-                    else if (status == "Ripe")
-                    {
-                        if (AUTOREPLANT)
-                        {
-                            status = "New";
-                            statusLeft   = statusDur =  (integer) LIFETIME/3;
-                        }
-                        else
-                        {
-                            status = "Dead";
-                        }
-                    }
-                }
-            }
-        }
-        //
-        setFoliage(TRUE, WHITE);
-        if (water <= 5.0)
-        {
-            if (autoWater)
-            {
-                sense = "AutoWater";
-                llSensor(SF_WATER_TOWER, "", SCRIPTED, 96, PI);
-                llSay(0, TXT_SEEK_WT);
-            }
-            progress += TXT_NEEDS_WATER+"!\n";
-            setFoliage(TRUE, BROWN);
-            color = RED;
-        }
-        else if (status == "Growing" && statusLeft <= 86400)
-        {
-            color = YELLOW;
-            llMessageLinked(LINK_SET, 1, "STAGE|GROWING", NULL_KEY);
-        }
-        else if (status == "Ripe")
-        {
-            color = GREEN;
-            llMessageLinked(LINK_SET, 1, "STAGE|RIPE", NULL_KEY);
-        }
-        else if (status == "New")
-        {
-            llMessageLinked(LINK_SET, 1, "STAGE|NEW", NULL_KEY);
-        }
-        //
-        float p = 1- ((float)(statusLeft)/(float)statusDur);
-
-        progress += TXT_STATUS+": ";
-             if (status == "Empty") progress += TXT_EMPTY;
-        else if (status == "New") progress += TXT_NEW;
-        else if (status == "Growing") progress += TXT_GROWING;
-        else if (status == "Ripe") progress += TXT_RIPE;
-        else if (status == "Dead") progress += TXT_DEAD;
-        progress += " ("+(string)((integer)(p*100.))+"%)\n---\n";
-        progress += TXT_WATER+" "+(string)((integer)osMax(0.0, water))+ "%\n";
-        if (HAS_WOOD)
-        {
-            progress += TXT_WOOD+" "+(string)(llFloor(wood))+"%\n";
-        }
-        progress += setByProdLevels();
-    }
-
-    if (status == "Dead")
-    {
-        setFoliage(TRUE, BLACK);
-        progress = TXT_DEAD +" "+ TXT_CLICK_TO_CLEANUP;
-        color = RED;
-    }
-    else if (status == "Empty")
-    {
-        setFoliage(FALSE, ZERO_VECTOR);
-        llMessageLinked(LINK_SET, 1, "STAGE|EMPTY", NULL_KEY);
-        progress = TXT_EMPTY + "\n" + TXT_CLICK_TO_PLANT;
-    }
-
-    debug(customStr + progress);
-    psys();
-
-    if (RSTATE == 0) progress+= "\n-B-"; else if (RSTATE == -1) progress+= "\n-RC-";
-    if (floatText == TRUE) llSetText(customStr + progress, color, 1.0); else llSetText("",ZERO_VECTOR,0.0);
-    llMessageLinked(LINK_SET, 92, "STATUS|"+status+"|"+(string)statusLeft+"|WATER|"+(string)water+"|PRODUCT|"+PRODUCT_NAME+"|PLANT|"+plant+"|LIFETIME|"+(string)LIFETIME, NULL_KEY);
-    save2Desc();
-}
-
 doHarvest()
 {
     if (status == "Ripe")
@@ -570,7 +661,7 @@ doHarvest()
         llMessageLinked(LINK_SET, 1, "REZ_PRODUCT|" +PASSWORD +"|" +(string)lastUser +"|" +PRODUCT_NAME, NULL_KEY);
         llRegionSayTo(lastUser, 0, TXT_HARVETS_READY);
 
-         if (AUTOREPLANT)
+         if (AUTOREPLANT || autoHarvest)
          {
             statusDur = statusLeft = (integer)(LIFETIME/3.);
             status = "New";
@@ -578,120 +669,28 @@ doHarvest()
          else
             status = "Empty";
 
-         refresh();
+         refresh_real();
          llTriggerSound("lap", 1.0);
     }
 }
-
-string trimPrefix(string name)
+debug(string text)
 {
-    // Assumes prefix is always 2 digits and a space
-    debug("input: "+name +"   output: " + llGetSubString(name, 2, -1));
-    return llGetSubString(name, 2, -1);
+    if (DEBUGMODE == TRUE) llOwnerSay("DEBUG_" + llToUpper(llGetScriptName()) + " " + text);
 }
 
-integer getLinkNum(string name)
+checkListen(integer force)
 {
-    integer i;
-    for (i=1; i <=llGetNumberOfPrims(); i++)
-        if (llGetLinkName(i) == name) return i;
-    return -1;
-}
-
-// return a list of elements common to both lists
-list ListXandY(list lx, list ly)
-{
-
-    list lz = []; integer x;
-    for (x = 0; x < llGetListLength(ly); x++)
+    if ((listener > 0 && llGetUnixTime() - listenTs > 300) || force)
     {
-        if (~llListFindList(lx,llList2List(ly,x,x)))
-        {
-            lz = lz + llList2List(ly,x,x);
-        }
-        else
-        {
-            //
-        }
-    }
-    return lz;
-}
-
-setFoliage(integer visible, vector colour)
-{
-    string texture;
-    if (visible == FALSE)
-    {
-        if (plantPrims == FALSE)
-        {
-            llSetLinkTexture(getLinkNum(FOLIAGE_TEXTURE), TEXTURE_TRANSPARENT, ALL_SIDES);
-        }
-        else
-        {
-            list primNames = [];
-            integer i;
-            for (i=1; i <=llGetNumberOfPrims(); i++)
-            {
-                // Prim name can be one or more of New, Growing and Ripe  e.g 'Ripe' or 'New;Growing;Ripe' etc
-                primNames = llParseString2List(llList2String(llGetLinkPrimitiveParams(i, [PRIM_NAME]), 0), [";"], []);
-                if (llGetListLength(ListXandY(primNames, ["New", "Growing", "Ripe"])) != 0)
-                {
-                    llSetLinkAlpha(i, 0.0, ALL_SIDES);
-                }
-            }
-        }
-    }
-    else
-    {
-        if (plantPrims == FALSE)
-        {
-            texture = season + plant + "-" + status;
-            if (llGetInventoryType(texture) == INVENTORY_TEXTURE)
-            {
-                llSetLinkTexture(getLinkNum(FOLIAGE_TEXTURE), texture, ALL_SIDES);
-            }
-            llSetLinkColor(getLinkNum(FOLIAGE_TEXTURE), colour, ALL_SIDES);
-        }
-        else
-        {
-            list primNames = [];
-            integer i;
-            for (i=1; i <=llGetNumberOfPrims(); i++)
-            {
-                // Prim name can be one or more of New, Growing and Ripe  e.g 'Ripe' or 'New;Growing;Ripe' etc
-                primNames = llParseString2List(llList2String(llGetLinkPrimitiveParams(i, [PRIM_NAME]), 0), [";"], []);
-
-                if (llGetListLength(ListXandY(primNames, ["New", "Growing", "Ripe"])) != 0)
-                {
-                    if (llListFindList(primNames, [status]) != -1)
-                    {
-                        debug("plant_prim="+(string)i);
-                        llSetLinkAlpha(i, 1.0, ALL_SIDES);
-                        if ((status == "Growing") && (growPrims == TRUE))
-                        {
-                            float percentGrowth = (1- ((float)(statusLeft)/(float)statusDur)) * 100;
-                            debug("Progress:"+ llRound(percentGrowth) +"\nstatusLeft:" +(string)statusLeft + "   statusDur:" +(string)statusDur);
-                            resizeObject(percentGrowth/scaleFactor);
-                        }
-                    }
-                    else
-                    {
-                        llSetLinkAlpha(i, 0.0, ALL_SIDES);
-                    }
-                }
-            }
-        }
+        llListenRemove(listener);
+        listener = -1;
     }
 }
 
-resizeObject(float scale)
+
+integer chan(key u)
 {
-    integer link_qty = llGetListLength(link_scales);
-    integer link_idx;
-    for (link_idx = 0; link_idx < link_qty; ++link_idx)
-    {
-        llSetLinkPrimitiveParamsFast(llList2Integer(link_num, link_idx),    [PRIM_SIZE, scale * llList2Vector(link_scales, link_idx) ]);
-    }
+    return -1 - (integer)("0x" + llGetSubString( (string) u, -6, -1) )-393;
 }
 
 default
@@ -729,7 +728,7 @@ default
             min_scale = llList2Float(lst, -1);
         }
         llSleep(2.0);
-        //for updates
+
         if (llSubStringIndex(llGetObjectName(), "Update")>=0 || llSubStringIndex(llGetObjectName(), "Rezz")>=0)
         {
             string me = llGetScriptName();
@@ -737,12 +736,12 @@ default
             llSleep(0.5);
             return;
         }
-        //
+
         status = "Empty";
         loadConfig(TRUE);
         loadLanguage(languageCode);
         llMessageLinked( LINK_SET, 99, "RESET", NULL_KEY);
-        llMessageLinked( LINK_SET, 1, "LANG_MENU|" +languageCode, NULL_KEY);  
+        llMessageLinked( LINK_SET, 1, "LANG_MENU|" +languageCode, NULL_KEY);
         setFoliage(FALSE, ZERO_VECTOR);
         refresh();
         llSetTimerEvent(1);
@@ -768,14 +767,14 @@ default
         if (status == "Ripe")  opts += TXT_HARVEST;
         else if (status == "Dead" || (status == "New" && AUTOREPLANT))  opts += TXT_CLEANUP;
         else if (status == "Empty")  opts += TXT_PLANT;
-        //
+
         if (water < 90) opts += TXT_WATER_PLANT;
         if (autoWater) opts += "-"+TXT_AUTOWATER;
         else opts += "+"+TXT_AUTOWATER;
-        //
+
         if (HAS_WOOD && wood >= 100.0) opts += TXT_GET_WOOD;
-        //
-        // Add buttons for 100% by-products
+
+
         integer index;
         float result;
         integer count = llGetListLength(BY_PRODUCTS);
@@ -784,7 +783,7 @@ default
             result = llList2Float(byProdLevels, index);
             if (result >= 100.0) opts += TXT_GET+" "+trimPrefix(llList2String(BY_PRODUCTS, index))  ;
         }
-        //
+
         if (status == "Growing") opts += TXT_ADD_MANURE;
 
         if (autoHarvest == TRUE)
@@ -799,7 +798,7 @@ default
         opts += customOptions;
         opts += TXT_LANGUAGE;
         opts += TXT_BUTTON_CLOSE;
-        //
+
         string customStr = "";
         integer i = llGetListLength(statusOptions);
         while (i--)
@@ -810,7 +809,7 @@ default
         customStr += "\t";
         if (AUTOREPLANT) customStr += TXT_REPLANT_ON; else customStr += TXT_REPLANT_OFF;
         customStr += "\n";
-        if (autoWater) customStr += TXT_AUTOWATERING_ON; else customStr += TXT_AUTOWATERING_OFF;   
+        if (autoWater) customStr += TXT_AUTOWATERING_ON; else customStr += TXT_AUTOWATERING_OFF;
         startListen();
         llDialog(lastUser, "\n" +TXT_MENU_OPTIONS +"\n \n" +customStr, opts, chan(llGetKey()));
     }
@@ -834,7 +833,7 @@ default
                 llRegionSayTo(lastUser, 0, TXT_LOW_ENERGY);
             }
         }
-        else if (m == TXT_ADDllGetAndResetTime_MANURE)
+        else if (m == TXT_ADD_MANURE)
         {
             if ((energy >= 1) || (energy == -1))
             {
@@ -905,7 +904,7 @@ default
             else
             {
                 llRegionSayTo(id, 0, TXT_AUTOHARVESTING_ON);
-                //AUTOREPLANT = TRUE;
+
             }
             llSetTimerEvent(1);
         }
@@ -948,8 +947,8 @@ default
             mode = "";
         }
         else if (llGetSubString(m, 0, 2) == TXT_GET)
-        {            
-            // String would be  'Get Sticks' etc so remove the Get part so we just have by-product name
+        {
+
             string mm = llGetSubString(m, 4, -1);
             integer index;
             integer count = llGetListLength(BY_PRODUCTS);
@@ -1009,7 +1008,7 @@ default
         }
         else if (command == "HAVEWATER")
         {
-             // found water
+
             if (sense == "WaitTower")
             {
                 llSay(0, TXT_FOUND_WATER);
@@ -1026,7 +1025,7 @@ default
                 return;
             }
         }
-        //for updates
+
         else if (command == "VERSION-CHECK")
         {
             string answer = "VERSION-REPLY|" + PASSWORD + "|";
@@ -1082,7 +1081,7 @@ default
             llSleep(10.0);
             llResetScript();
         }
-        //
+
     }
 
 
@@ -1105,7 +1104,7 @@ default
         }
         else
         {
-            // Manure / water
+
             llRegionSayTo(lastUser, 0, TXT_EMPTYING);
             key id = llDetectedKey(0);
             osMessageObject(id,  "DIE|"+(string)llGetKey());
@@ -1136,7 +1135,7 @@ default
         debug("link_message: " +m);
         list tok = llParseString2List(m, ["|"], []);
         string cmd = llList2String(tok,0);
-        if (cmd == "ADD_MENU_OPTION")  // Add custom dialog menu options.
+        if (cmd == "ADD_MENU_OPTION")
         {
             customOptions += [llList2String(tok,1)];
         }
@@ -1148,7 +1147,7 @@ default
                 customOptions = llDeleteSubList(customOptions, findOpt, findOpt);
             }
         }
-        if (cmd == "ADD_STATUS_OPTION")  // Add custom dialog menu options.
+        if (cmd == "ADD_STATUS_OPTION")
         {
             statusOptions += [llList2String(tok,1)];
         }
@@ -1172,7 +1171,7 @@ default
                 customText = llDeleteSubList(customText, findTxt, findTxt);
             }
         }
-        else if (cmd == "SETSTATUS")    // Change the status of this plant
+        else if (cmd == "SETSTATUS")
         {
             status = llList2String(tok, 1);
             statusLeft = statusDur = llList2Integer(tok, 2);
@@ -1184,9 +1183,9 @@ default
             loadLanguage(languageCode);
             refresh();
         }
-        else if (cmd == "HARVEST")    // Change the status of this plant
+        else if (cmd == "HARVEST")
         {
-            doHarvest();  // Status must be "Ripe"
+            doHarvest();
         }
 
         else if (cmd == "STATUS")
@@ -1194,7 +1193,7 @@ default
             string status = llList2String(tok,1);
             if (status == "Ripe")
             {
-                if (autoHarvest) // If autoharvest is on, send message to harvest
+                if (autoHarvest)
                 {
                     integer TIME = 300;
                     integer found = llListFindList(tok, ["LIFETIME"]) + 1;
@@ -1203,6 +1202,7 @@ default
                         TIME = llList2Integer(tok, found) / 3;
                     }
                     llMessageLinked(LINK_THIS, 1, "HARVEST", NULL_KEY);
+                    doHarvest();
                     llSleep(1.0);
                     llMessageLinked(LINK_THIS, 1, "SETSTATUS|New|" + (string)TIME, NULL_KEY);
                 }
@@ -1222,3 +1222,4 @@ default
         }
     }
 }
+
